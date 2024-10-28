@@ -1,10 +1,12 @@
-# library doc string
+'''
+This module provides a library of functions to find customers who are likely to churn.
+'''
 
-
-# import libraries
 import os
 os.environ['QT_QPA_PLATFORM']='offscreen'
 
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def import_data(pth):
@@ -14,22 +16,71 @@ def import_data(pth):
     input:
             pth: a path to the csv
     output:
-            df: pandas dataframe
-    '''	
-    pass
+            dataframe: pandas dataframe
+    '''
+    
+    try:
+        dataframe = pd.read_csv(pth, index_col=0)
+    except FileNotFoundError:
+        print("File not found. Check the path again.")
+    except pd.errors.ParserError:
+        print("Wrong file format.")
+    else:
+        # Encode target variable: 0 = Did not churned ; 1 = Churned
+        dataframe['Churn'] = dataframe['Attrition_Flag'].apply(lambda value: 0 if value == "Existing Customer" else 1)
+
+        # Drop irrelevant columns
+        dataframe.drop('CLIENTNUM', axis=1, inplace=True)
+        dataframe.drop('Attrition_Flag', axis=1, inplace=True)
+        
+        return dataframe
 
 
-def perform_eda(df):
+def perform_eda(dataframe):
     '''
     perform eda on df and save figures to images folder
     input:
-            df: pandas dataframe
+            dataframe: pandas dataframe
 
     output:
             None
     '''
-    pass
+    
+    # Analyze the target variable and plot distribution
+    plt.figure(figsize=(10, 6))
+    dataframe['Churn'].value_counts().plot(kind='bar')
+    plt.title(f"Distribution of Churn")
+    plt.xlabel("Churn")
+    plt.ylabel("Count")
 
+    # Save plot with a unique filename
+    plt.savefig(os.path.join("./images/eda", "Churn_distribution.png"))
+    plt.close()
+    
+    # Analyze categorical features and plot distribution
+    categorical_cols = dataframe.select_dtypes(include=['object', 'category']).columns
+    for feature in categorical_cols:
+        plt.figure(figsize=(10, 6))
+        dataframe[feature].value_counts().plot(kind='bar')
+        plt.title(f"Distribution of {feature}")
+        plt.xlabel(feature)
+        plt.ylabel("Count")
+        plt.savefig(os.path.join("./images/eda", f"{feature}_distribution.png"))
+        plt.close()
+
+    # Analyze Numeric features
+    dataframe.describe().to_csv(os.path.join("./images/eda", "numerical_feature_description.csv"))
+    
+    numerical_cols = list(set(dataframe.columns)-{'Churn'}-set(categorical_cols))
+    
+    for feature in numerical_cols:
+        plt.figure()
+        dataframe[feature].plot(kind='hist', bins=30, edgecolor='black')
+        plt.title(f'Distribution of {feature}')
+        plt.xlabel(feature)
+        plt.ylabel('Frequency')
+        plt.savefig(os.path.join("./images/eda", f"{feature}_distribution.png"))
+        plt.close()
 
 def encoder_helper(df, category_lst, response):
     '''
@@ -108,3 +159,20 @@ def train_models(X_train, X_test, y_train, y_test):
               None
     '''
     pass
+
+if __name__ == "__main__":
+    print("Importing data")
+    dataset = import_data("./data/bank_data.csv")
+    print(dataset.head())
+    print(dataset.describe())
+    
+    print("Conducting data exploration")
+    perform_eda(dataset)
+    
+    print("Feature engineering")
+    #X_train, X_test, y_train, y_test = perform_feature_engineering(dataset, response='Churn')
+    
+    print("Model training")
+    #train_models(X_train, X_test, y_train, y_test)
+    
+    print("Training completed")
