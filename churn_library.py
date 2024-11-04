@@ -161,15 +161,15 @@ def classification_report_image(y_train,
     
     # Classification report for training dataset
     plt.text(0.01, 1.0, str('Logistic Regression Training'))
-    plt.text(0.01, 0.1, str(classification_report(y_train, y_train_preds)))
+    plt.text(0.01, 0.1, str(classification_report(y_train, y_train_preds_lr)))
 
     # Classification report for test dataset
     plt.text(0.01, 0.6, str('Logistic Regression Test'))
-    plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds)))
+    plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_lr)))
     plt.axis('off')
 
     # Save figure
-    plt.savefig(os.path.join("./images/results", "classification_report_lr.png", bbox_inches='tight'))
+    plt.savefig(os.path.join("./images/results", "classification_report_lr.png"))
     plt.close()
                 
     # Plot Random Forest Classification Report
@@ -177,15 +177,15 @@ def classification_report_image(y_train,
     
     # Classification report for training dataset
     plt.text(0.01, 1.0, str('Logistic Regression Training'))
-    plt.text(0.01, 0.1, str(classification_report(y_train, y_train_preds)))
+    plt.text(0.01, 0.1, str(classification_report(y_train, y_train_preds_rf)))
 
     # Classification report for test dataset
     plt.text(0.01, 0.6, str('Logistic Regression Test'))
-    plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds)))
+    plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_rf)))
     plt.axis('off')
 
     # Save figure
-    plt.savefig(os.path.join("./images/results", "classification_report_rf.png", bbox_inches='tight'))
+    plt.savefig(os.path.join("./images/results", "classification_report_rf.png"))
     plt.close()
 
 def feature_importance_plot(model, X_data, output_pth):
@@ -206,7 +206,7 @@ def feature_importance_plot(model, X_data, output_pth):
     names = [X_data.columns[i] for i in indices]
 
     # Create figure
-    plt.figure(figsize=(25, 5))
+    plt.figure(figsize=(25, 10))
     plt.title(f"Feature Importance")
     plt.ylabel('Importance')
     plt.bar(range(X_data.shape[1]), importances[indices])
